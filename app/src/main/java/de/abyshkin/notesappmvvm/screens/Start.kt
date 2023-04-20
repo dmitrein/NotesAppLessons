@@ -2,11 +2,10 @@ package de.abyshkin.notesappmvvm.screens
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
 
 @Composable
-fun Start(navController: NavHostController) {
+fun StartScreen(navController: NavHostController) {
     Text(
         text = "Notes App Screen"
     )
