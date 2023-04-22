@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 
 package de.abyshkin.notesappmvvm
 
@@ -7,6 +7,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -25,45 +26,31 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            NotesAppMVVMTheme {
-                DefaultScreen()
+            NotesAppMVVMTheme(darkTheme = false) {
+                //DefaultScreen()
+                Scaffold(
+                    topBar = {
+                        TopAppBar(
+                            title = {
+                                Text(text = "Notes App")
+                            },
+                            colors = TopAppBarDefaults.smallTopAppBarColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                titleContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        )
+                    },
+                    content = {
+                        Surface(
+                            modifier = Modifier.padding(it).fillMaxSize(),
+                            color = MaterialTheme.colorScheme.background,
+                            //contentColor = Color.Black
+                        ) {
+                            NotesNavHost()
+                        }
+                    }
+                )
             }
         }
     }
-}
-
-
-//@Preview(showBackground = true)
-//@Composable
-//fun GreetingPreview() {
-//    NotesAppMVVMTheme {
-//
-//    }
-//}
-
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@Composable
-fun DefaultScreen(){
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(text = "Notes App")
-                },
-                colors = TopAppBarDefaults.smallTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    titleContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            )
-        },
-        content = {
-            Surface(
-                modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.background,
-                //contentColor = Color.Black
-            ) {
-                NotesNavHost()
-            }
-        }
-    )
 }
