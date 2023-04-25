@@ -16,7 +16,7 @@ class MainViewModel(application: Application): AndroidViewModel(application) {
 class MainViewModelFactory(private val application: Application): ViewModelProvider.Factory{
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
-            return super.create(modelClass) as T
+            return MainViewModel(application = application) as T
         }
         throw IllegalArgumentException("Unknown ViewModel Class")
     }
