@@ -32,6 +32,7 @@ fun StartScreen(navController: NavHostController) {
     val context = LocalContext.current
     val mViewModel: MainViewModel =
         viewModel(factory = MainViewModelFactory(context.applicationContext as Application))
+
     Scaffold(
         modifier = Modifier.fillMaxSize()
     ) {
