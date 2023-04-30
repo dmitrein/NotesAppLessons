@@ -8,6 +8,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
@@ -19,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -36,11 +39,8 @@ import de.abyshkin.notesappmvvm.ui.theme.NotesAppMVVMTheme
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MainScreen(navController: NavHostController) {
-
-    val context = LocalContext.current
-    val mViewModel: MainViewModel =
-        viewModel(factory = MainViewModelFactory(context.applicationContext as Application))
+fun MainScreen(navController: NavHostController, viewModel: MainViewModel) {
+    val notes = viewModel.readAllNotes().observeAsState(listOf()).value
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -57,16 +57,17 @@ fun MainScreen(navController: NavHostController) {
             }
         }
     ) {
-        /*LazyColumn {
+        LazyColumn {
             items(notes) {note ->
                 NoteItem(note = note, navController = navController)
             }
-        }*/
+        }
     }
 }
 
 @Composable
 fun NoteItem(note: Note, navController: NavHostController) {
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -88,10 +89,14 @@ fun NoteItem(note: Note, navController: NavHostController) {
         )
     }
 }
+
 @Preview(showBackground = true)
 @Composable
 fun prevMainScreen() {
     NotesAppMVVMTheme {
-        MainScreen(navController = rememberNavController())
+        val context = LocalContext.current
+        val mViewModel: MainViewModel =
+            viewModel(factory = MainViewModelFactory(context.applicationContext as Application))
+        MainScreen(navController = rememberNavController(), viewModel = mViewModel)
     }
 }
