@@ -26,7 +26,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            NotesAppMVVMTheme(darkTheme = false) {
+            NotesAppMVVMTheme {
                 val context = LocalContext.current
                 val mViewModel: MainViewModel =
                     viewModel(factory = MainViewModelFactory(context.applicationContext as Application))
