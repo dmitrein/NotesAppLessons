@@ -1,5 +1,6 @@
 package de.abyshkin.notesappmvvm.navigation
 
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -18,6 +19,7 @@ sealed class NavRoute(val route: String) {
     object Note : NavRoute(Constants.Screens.NOTE_SCREEN)
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotesNavHost(mViewModel: MainViewModel) {
     val navController = rememberNavController()

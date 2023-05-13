@@ -13,10 +13,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -33,17 +43,83 @@ import de.abyshkin.notesappmvvm.model.Note
 import de.abyshkin.notesappmvvm.navigation.NavRoute
 import de.abyshkin.notesappmvvm.ui.theme.NotesAppMVVMTheme
 import de.abyshkin.notesappmvvm.utils.Constants
+import kotlinx.coroutines.launch
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@ExperimentalMaterial3Api
 @Composable
 fun NoteScreen(navController: NavHostController, viewModel: MainViewModel, noteId: String?) {
     val notes = viewModel.readAllNotes().observeAsState(listOf()).value
     val note = notes.firstOrNull {
-            it.id == noteId?.toInt() } ?: Note( title = Constants.Keys.NONE,
-                                                subtitle = Constants.Keys.NONE )
-    //val bottomSheetState = rememberModalBottomSheetState()
+        it.id == noteId?.toInt()
+    } ?: Note(
+        title = Constants.Keys.NONE,
+        subtitle = Constants.Keys.NONE
+    )
 
+    var openBottomSheet by rememberSaveable { mutableStateOf(false) }
+    //var skipPartiallyExpanded by remember { mutableStateOf(false) }
+    val bottomSheetState = rememberModalBottomSheetState()
+    val coroutineScope = rememberCoroutineScope()
+    var title by remember { mutableStateOf(Constants.Keys.EMPTY) }
+    var subtitle by remember { mutableStateOf(Constants.Keys.EMPTY) }
+
+    if (openBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { openBottomSheet = false },
+            sheetState = bottomSheetState,
+            tonalElevation = 5.dp,
+        ){
+            Surface {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(all = 32.dp)
+                ) {
+                    Text(
+                        text = Constants.Keys.EDIT_NOTE,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
+                    OutlinedTextField(
+                        value = title,
+                        onValueChange = { title = it },
+                        label = { Text(text = Constants.Keys.TITLE) },
+                        isError = title.isEmpty()
+                    )
+                    OutlinedTextField(
+                        value = subtitle,
+                        onValueChange = { subtitle = it },
+                        label = { Text(text = Constants.Keys.SUBTITLE) },
+                        isError = subtitle.isEmpty()
+                    )
+                    Button(
+                        modifier = Modifier.padding(top = 16.dp),
+                        onClick = {
+                            //не обновляется заметка!
+                            openBottomSheet = false
+                            viewModel.updateNote(note =
+                            Note(id = note.id, title = note.title, subtitle = note.subtitle)
+                            ) {
+
+                                navController.navigate(NavRoute.Main.route)
+
+//                                    coroutineScope.launch { bottomSheetState.hide() }.invokeOnCompletion {
+//                                        if (!bottomSheetState.isVisible) {
+//                                            openBottomSheet = false
+//                                        }
+//                                    }
+                            }
+                        }
+                    ) {
+                        Text(text = Constants.Keys.UPDATE_NOTE)
+                    }
+                }
+            }
+        }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize()
@@ -85,11 +161,20 @@ fun NoteScreen(navController: NavHostController, viewModel: MainViewModel, noteI
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
                 Button(onClick = {
-                    /*TODO*/
+                    coroutineScope.launch {
+                        title = note.title
+                        subtitle = note.subtitle
+                        openBottomSheet = !openBottomSheet
+                        //bottomSheetState.show()
+                    }
                 }) {
                     Text(text = Constants.Keys.UPDATE)
                 }
-                Button(onClick = { /*TODO*/ }
+                Button(onClick = {
+                    viewModel.deleteNote(note = note){
+                        navController.navigate(NavRoute.Main.route)
+                    }
+                }
                 ) {
                     Text(text = Constants.Keys.DELETE)
                 }
@@ -105,8 +190,15 @@ fun NoteScreen(navController: NavHostController, viewModel: MainViewModel, noteI
                 Text(text = Constants.Keys.NAV_BACK)
             }
         }
+
+
     }
+
+
+
+
 }
+
 
 @Preview(showBackground = true)
 @Composable
