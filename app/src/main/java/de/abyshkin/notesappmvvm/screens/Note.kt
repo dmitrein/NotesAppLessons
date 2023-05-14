@@ -10,15 +10,16 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -59,23 +60,19 @@ fun NoteScreen(navController: NavHostController, viewModel: MainViewModel, noteI
     )
 
     var openBottomSheet by rememberSaveable { mutableStateOf(false) }
-    //var skipPartiallyExpanded by remember { mutableStateOf(false) }
-    val bottomSheetState = rememberModalBottomSheetState()
+    val bottomSheetScaffoldStateState = rememberBottomSheetScaffoldState(SheetState(openBottomSheet))
     val coroutineScope = rememberCoroutineScope()
     var title by remember { mutableStateOf(Constants.Keys.EMPTY) }
     var subtitle by remember { mutableStateOf(Constants.Keys.EMPTY) }
 
-    if (openBottomSheet) {
-        ModalBottomSheet(
-            onDismissRequest = { openBottomSheet = false },
-            sheetState = bottomSheetState,
-            tonalElevation = 5.dp,
-        ){
+    BottomSheetScaffold(
+        scaffoldState = bottomSheetScaffoldStateState,
+        sheetPeekHeight = 320.dp,
+        sheetContent = {
             Surface {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(all = 32.dp)
+                Column(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(all = 32.dp)
                 ) {
                     Text(
                         text = Constants.Keys.EDIT_NOTE,
@@ -98,104 +95,91 @@ fun NoteScreen(navController: NavHostController, viewModel: MainViewModel, noteI
                     Button(
                         modifier = Modifier.padding(top = 16.dp),
                         onClick = {
-                            //не обновляется заметка!
-                            openBottomSheet = false
-                            viewModel.updateNote(note =
-                            Note(id = note.id, title = note.title, subtitle = note.subtitle)
-                            ) {
-
+                            viewModel.updateNote(note = Note(
+                                id = note.id,
+                                title = note.title,
+                                subtitle = note.subtitle
+                            )){
                                 navController.navigate(NavRoute.Main.route)
-
-//                                    coroutineScope.launch { bottomSheetState.hide() }.invokeOnCompletion {
-//                                        if (!bottomSheetState.isVisible) {
-//                                            openBottomSheet = false
-//                                        }
-//                                    }
                             }
-                        }
-                    ) {
-                        Text(text = Constants.Keys.UPDATE_NOTE)
+                        }) {
+                            Text(text = Constants.Keys.UPDATE_NOTE)
                     }
                 }
             }
-        }
-    }
-
-    Scaffold(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(32.dp)
+        }) {
+            Scaffold(
+                modifier = Modifier.fillMaxSize()
             ) {
                 Column(
-                    modifier = Modifier
-                        .padding(vertical = 8.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
-                    Text(
-                        text = note.title,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(top = 10.dp)
-                    )
-                    Text(
-                        text = note.subtitle,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Light,
-                        modifier = Modifier.padding(top = 14.dp)
-                    )
-                }
-            }
-            Row(
-                modifier = Modifier
-                    .padding(horizontal = 32.dp)
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceAround
-            ) {
-                Button(onClick = {
-                    coroutineScope.launch {
-                        title = note.title
-                        subtitle = note.subtitle
-                        openBottomSheet = !openBottomSheet
-                        //bottomSheetState.show()
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(32.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .padding(vertical = 8.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = note.title,
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(top = 10.dp)
+                            )
+                            Text(
+                                text = note.subtitle,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Light,
+                                modifier = Modifier.padding(top = 14.dp)
+                            )
+                        }
                     }
-                }) {
-                    Text(text = Constants.Keys.UPDATE)
-                }
-                Button(onClick = {
-                    viewModel.deleteNote(note = note){
-                        navController.navigate(NavRoute.Main.route)
+                    Row(
+                        modifier = Modifier
+                            .padding(horizontal = 32.dp)
+                            .fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceAround
+                    ) {
+                        Button(onClick = {
+                            coroutineScope.launch {
+                                title = note.title
+                                subtitle = note.subtitle
+                                //openBottomSheet = !openBottomSheet
+                                //bottomSheetState.show()
+                                bottomSheetScaffoldStateState.bottomSheetState.show()
+                            }
+                        }) {
+                            Text(text = Constants.Keys.UPDATE)
+                        }
+                        Button(onClick = {
+                            viewModel.deleteNote(note = note){
+                                navController.navigate(NavRoute.Main.route)
+                            }
+                        }
+                        ) {
+                            Text(text = Constants.Keys.DELETE)
+                        }
+                    }
+                    Button(
+                        modifier = Modifier
+                            .padding(top = 16.dp)
+                            .padding(horizontal = 32.dp)
+                            .fillMaxWidth(),
+                        onClick = {
+                            navController.navigate(NavRoute.Main.route)
+                        }) {
+                        Text(text = Constants.Keys.NAV_BACK)
                     }
                 }
-                ) {
-                    Text(text = Constants.Keys.DELETE)
-                }
             }
-            Button(
-                modifier = Modifier
-                    .padding(top = 16.dp)
-                    .padding(horizontal = 32.dp)
-                    .fillMaxWidth(),
-                onClick = {
-                    navController.navigate(NavRoute.Main.route)
-                }) {
-                Text(text = Constants.Keys.NAV_BACK)
-            }
-        }
-
-
     }
-
-
-
 
 }
 
