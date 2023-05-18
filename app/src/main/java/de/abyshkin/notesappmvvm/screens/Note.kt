@@ -97,8 +97,8 @@ fun NoteScreen(navController: NavHostController, viewModel: MainViewModel, noteI
                         onClick = {
                             viewModel.updateNote(note = Note(
                                 id = note.id,
-                                title = note.title,
-                                subtitle = note.subtitle
+                                title = title,
+                                subtitle = subtitle
                             )){
                                 navController.navigate(NavRoute.Main.route)
                             }
@@ -151,8 +151,6 @@ fun NoteScreen(navController: NavHostController, viewModel: MainViewModel, noteI
                             coroutineScope.launch {
                                 title = note.title
                                 subtitle = note.subtitle
-                                //openBottomSheet = !openBottomSheet
-                                //bottomSheetState.show()
                                 bottomSheetScaffoldStateState.bottomSheetState.show()
                             }
                         }) {
