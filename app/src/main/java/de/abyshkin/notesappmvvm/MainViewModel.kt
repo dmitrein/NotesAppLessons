@@ -6,10 +6,12 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import de.abyshkin.notesappmvvm.database.firebase.AppFirebaseRepository
 import de.abyshkin.notesappmvvm.database.room.AppRoomDatabase
 import de.abyshkin.notesappmvvm.database.room.repository.RoomRepository
 import de.abyshkin.notesappmvvm.model.Note
 import de.abyshkin.notesappmvvm.utils.REPOSITORY
+import de.abyshkin.notesappmvvm.utils.TYPE_FIREBASE
 import de.abyshkin.notesappmvvm.utils.TYPE_ROOM
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,6 +27,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 val dao = AppRoomDatabase.getInstance(context = context).getRoomDao()
                 REPOSITORY = RoomRepository(dao)
                 onSuccess()
+            }
+            TYPE_FIREBASE -> {
+                REPOSITORY = AppFirebaseRepository()
+                REPOSITORY.connectToDatabase(
+                    { onSuccess() },
+                    { Log.d("checkData", "Error: ${it}") }
+                )
             }
         }
     }
