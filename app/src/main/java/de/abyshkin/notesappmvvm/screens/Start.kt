@@ -38,6 +38,7 @@ import de.abyshkin.notesappmvvm.MainViewModelFactory
 import de.abyshkin.notesappmvvm.navigation.NavRoute
 import de.abyshkin.notesappmvvm.ui.theme.NotesAppMVVMTheme
 import de.abyshkin.notesappmvvm.utils.Constants
+import de.abyshkin.notesappmvvm.utils.DB_TYPE
 import de.abyshkin.notesappmvvm.utils.LOGIN
 import de.abyshkin.notesappmvvm.utils.PASSWORD
 import de.abyshkin.notesappmvvm.utils.TYPE_FIREBASE
@@ -88,6 +89,7 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel) {
                             LOGIN = login
                             PASSWORD = password
                             viewModel.initDatabase(TYPE_FIREBASE){
+                                DB_TYPE = TYPE_FIREBASE
                                 coroutineScope.launch {
                                     bottomSheetScaffoldStateState.bottomSheetState.hide()
                                 }
@@ -116,6 +118,7 @@ fun StartScreen(navController: NavHostController, viewModel: MainViewModel) {
                 Button(
                     onClick = {
                         viewModel.initDatabase(TYPE_ROOM) {
+                            DB_TYPE = TYPE_ROOM
                             navController.navigate(route = NavRoute.Main.route)
                         }
                     },

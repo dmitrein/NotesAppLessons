@@ -36,6 +36,10 @@ import de.abyshkin.notesappmvvm.MainViewModelFactory
 import de.abyshkin.notesappmvvm.model.Note
 import de.abyshkin.notesappmvvm.navigation.NavRoute
 import de.abyshkin.notesappmvvm.ui.theme.NotesAppMVVMTheme
+import de.abyshkin.notesappmvvm.utils.Constants
+import de.abyshkin.notesappmvvm.utils.DB_TYPE
+import de.abyshkin.notesappmvvm.utils.TYPE_FIREBASE
+import de.abyshkin.notesappmvvm.utils.TYPE_ROOM
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -67,12 +71,16 @@ fun MainScreen(navController: NavHostController, viewModel: MainViewModel) {
 
 @Composable
 fun NoteItem(note: Note, navController: NavHostController) {
-
+    val noteId = when(DB_TYPE) {
+        TYPE_FIREBASE -> note.firebaseId
+        TYPE_ROOM -> note.id
+        else -> Constants.Keys.EMPTY
+    }
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp, horizontal = 18.dp)
-            .clickable { navController.navigate(NavRoute.Note.route + "/${note.id}") },
+            .clickable { navController.navigate(NavRoute.Note.route + "/${noteId}") },
         colors = CardDefaults.cardColors(
             contentColor = MaterialTheme.colorScheme.onSurfaceVariant
         )

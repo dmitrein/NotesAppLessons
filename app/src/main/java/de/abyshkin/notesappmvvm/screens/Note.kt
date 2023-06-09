@@ -44,6 +44,9 @@ import de.abyshkin.notesappmvvm.model.Note
 import de.abyshkin.notesappmvvm.navigation.NavRoute
 import de.abyshkin.notesappmvvm.ui.theme.NotesAppMVVMTheme
 import de.abyshkin.notesappmvvm.utils.Constants
+import de.abyshkin.notesappmvvm.utils.DB_TYPE
+import de.abyshkin.notesappmvvm.utils.TYPE_FIREBASE
+import de.abyshkin.notesappmvvm.utils.TYPE_ROOM
 import kotlinx.coroutines.launch
 
 
@@ -52,12 +55,15 @@ import kotlinx.coroutines.launch
 @Composable
 fun NoteScreen(navController: NavHostController, viewModel: MainViewModel, noteId: String?) {
     val notes = viewModel.readAllNotes().observeAsState(listOf()).value
-    val note = notes.firstOrNull {
-        it.id == noteId?.toInt()
-    } ?: Note(
-        title = Constants.Keys.NONE,
-        subtitle = Constants.Keys.NONE
-    )
+    val note = when(DB_TYPE) {
+        TYPE_ROOM -> {
+            notes.firstOrNull{ it.id == noteId?.toInt() } ?: Note()
+        }
+        TYPE_FIREBASE -> {
+            notes.firstOrNull{ it.firebaseId == noteId } ?: Note()
+        }
+        else -> Note()
+    }
 
     var openBottomSheet by rememberSaveable { mutableStateOf(false) }
     val bottomSheetScaffoldStateState = rememberBottomSheetScaffoldState(SheetState(openBottomSheet))
@@ -98,7 +104,8 @@ fun NoteScreen(navController: NavHostController, viewModel: MainViewModel, noteI
                             viewModel.updateNote(note = Note(
                                 id = note.id,
                                 title = title,
-                                subtitle = subtitle
+                                subtitle = subtitle,
+                                firebaseId = note.firebaseId
                             )){
                                 navController.navigate(NavRoute.Main.route)
                             }
